@@ -1,0 +1,100 @@
+/* 
+[F3V3R DR34M] - H4BB0 DR34M W0RLD CSS
+CR4CK3D BY: Z4R1G4T4
+N0 S3R14L N33D3D! ENJ0Y! 
+*/
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background: #1a1a1a;
+}
+
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+#gameCanvas {
+    width: 100%;
+    height: 100%;
+    background: #2a2a2a;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-box {
+    background: #333;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    color: #fff;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+.login-box h2 {
+    margin-bottom: 1rem;
+    color: #0ff;
+    text-shadow: 0 0 5px #0ff;
+}
+
+input {
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    width: 200px;
+    background: #222;
+    border: 1px solid #0ff;
+    color: #fff;
+    border-radius: 4px;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    background: #0ff;
+    border: none;
+    border-radius: 4px;
+    color: #000;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+button:hover {
+    background: #00cccc;
+    box-shadow: 0 0 10px #0ff;
+}
+
+#chat-container {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 300px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 8px;
+    padding: 10px;
+}
+
+#chat-messages {
+    height: 150px;
+    overflow-y: auto;
+    color: #fff;
+    margin-bottom: 10px;
+    padding: 5px;
+}
+
+#chat-input {
+    width: 100%;
+    box-sizing: border-box;
+}
