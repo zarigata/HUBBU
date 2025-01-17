@@ -6,6 +6,10 @@
     <title>H4BB0 DR34M W0RLD</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 </head>
 <body>
     <div id="game-container">
@@ -14,6 +18,7 @@
                 <div id="user-info">
                     <div id="avatar-preview"></div>
                     <span id="credits">Credits: 0</span>
+                    <span id="online-count">Online: 0</span>
                 </div>
                 <div id="navigation">
                     <button class="nav-btn" data-room="lobby">Lobby</button>
@@ -41,26 +46,62 @@
 
         <div id="customization-panel" class="side-panel">
             <h3>Customize Your Avatar</h3>
+            <div class="avatar-preview-large"></div>
+            
+            <div class="customization-section">
+                <h4>Body</h4>
+                <div class="style-options">
+                    <button class="style-btn" data-part="body" data-style="default">Default</button>
+                    <button class="style-btn" data-part="body" data-style="tall">Tall</button>
+                    <button class="style-btn" data-part="body" data-style="short">Short</button>
+                </div>
+                <input type="color" id="body-color" value="#FFD6B1">
+            </div>
+
             <div class="customization-section">
                 <h4>Hair Style</h4>
                 <div class="style-options">
-                    <button class="style-btn" data-style="hair1">Style 1</button>
-                    <button class="style-btn" data-style="hair2">Style 2</button>
-                    <button class="style-btn" data-style="hair3">Style 3</button>
+                    <button class="style-btn" data-part="hair" data-style="style1">Style 1</button>
+                    <button class="style-btn" data-part="hair" data-style="punk">Punk</button>
+                    <button class="style-btn" data-part="hair" data-style="long">Long</button>
                 </div>
+                <input type="color" id="hair-color" value="#4A3000">
             </div>
+
+            <div class="customization-section">
+                <h4>Eyes</h4>
+                <div class="style-options">
+                    <button class="style-btn" data-part="eyes" data-style="normal">Normal</button>
+                    <button class="style-btn" data-part="eyes" data-style="cute">Cute</button>
+                </div>
+                <input type="color" id="eye-color" value="#4A3000">
+            </div>
+
             <div class="customization-section">
                 <h4>Outfit</h4>
                 <div class="style-options">
-                    <button class="style-btn" data-style="outfit1">Casual</button>
-                    <button class="style-btn" data-style="outfit2">Formal</button>
-                    <button class="style-btn" data-style="outfit3">Sport</button>
+                    <button class="style-btn" data-part="outfit" data-subpart="top" data-style="tshirt">T-Shirt</button>
+                    <button class="style-btn" data-part="outfit" data-subpart="top" data-style="hoodie">Hoodie</button>
                 </div>
+                <input type="color" id="outfit-top-color" value="#FF6B6B">
+                
+                <div class="style-options">
+                    <button class="style-btn" data-part="outfit" data-subpart="bottom" data-style="jeans">Jeans</button>
+                    <button class="style-btn" data-part="outfit" data-subpart="bottom" data-style="skirt">Skirt</button>
+                </div>
+                <input type="color" id="outfit-bottom-color" value="#4ECDC4">
             </div>
-            <div class="color-picker">
-                <h4>Colors</h4>
-                <input type="color" id="primary-color" value="#FF6B6B">
-                <input type="color" id="secondary-color" value="#4ECDC4">
+
+            <div class="customization-section">
+                <h4>Accessories</h4>
+                <div class="style-options">
+                    <button class="style-btn" data-part="accessories" data-subpart="hat" data-style="none">No Hat</button>
+                    <button class="style-btn" data-part="accessories" data-subpart="hat" data-style="cap">Cap</button>
+                </div>
+                <div class="style-options">
+                    <button class="style-btn" data-part="accessories" data-subpart="glasses" data-style="none">No Glasses</button>
+                    <button class="style-btn" data-part="accessories" data-subpart="glasses" data-style="regular">Glasses</button>
+                </div>
             </div>
         </div>
 
@@ -70,7 +111,9 @@
                     <h1>H4BB0 DR34M</h1>
                     <div class="logo-animation"></div>
                 </div>
-                <div class="character-preview"></div>
+                <div class="avatar-preview-container">
+                    <canvas id="avatar-preview-login"></canvas>
+                </div>
                 <input type="text" id="username" placeholder="Choose your username">
                 <button id="customize-btn">Customize Avatar</button>
                 <button id="start-btn">Enter Hotel</button>
@@ -82,9 +125,13 @@
         </div>
     </div>
     <script src="js/config.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/avatar.js"></script>
     <script src="js/character.js"></script>
     <script src="js/room.js"></script>
     <script src="js/ui.js"></script>
+    <script src="js/multiplayer.js"></script>
     <script src="js/game.js"></script>
 </body>
 </html>

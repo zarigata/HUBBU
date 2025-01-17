@@ -1,8 +1,7 @@
 /*
- * [F3V3R DR34M] PR3S3NTS
- * H4BB0 DR34M W0RLD 2025 3D1T10N
+ * [F3V3R DR34M] - G4M3 C0R3
  * CR4CK3D BY: Z4R1G4T4
- * GR33TZ: ALL THE SCENE!
+ * H4X0R3D W1TH L0V3!
  */
 
 class Game {
@@ -12,6 +11,9 @@ class Game {
         this.players = new Map();
         this.currentPlayer = null;
         this.room = new Room();
+        this.ui = new UI();
+        this.db = new Database();
+        this.multiplayer = new MultiplayerManager(this, this.db);
         
         this.setupCanvas();
         this.setupEventListeners();
@@ -29,19 +31,38 @@ class Game {
 
     setupEventListeners() {
         document.getElementById('start-btn').addEventListener('click', () => this.startGame());
+        document.getElementById('customize-btn').addEventListener('click', () => this.ui.toggleCustomization());
         this.canvas.addEventListener('click', (e) => this.handleClick(e));
         document.getElementById('chat-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.handleChat(e.target.value);
+            if (e.key === 'Enter') {
+                const message = e.target.value.trim();
+                if (message) {
+                    this.multiplayer.sendChatMessage(message);
+                    e.target.value = '';
+                }
+            }
         });
     }
 
-    startGame() {
+    async startGame() {
         const username = document.getElementById('username').value.trim();
-        if (username) {
+        if (!username) return;
+
+        // Initialize player
+        this.currentPlayer = new Character(username);
+        this.currentPlayer.avatar = this.ui.avatar;
+        
+        // Initialize multiplayer
+        const success = await this.multiplayer.initialize(
+            username,
+            this.currentPlayer.avatar.exportConfig()
+        );
+
+        if (success) {
             document.getElementById('login-screen').style.display = 'none';
-            this.currentPlayer = new Character(username, 100, 100);
-            this.players.set(username, this.currentPlayer);
             this.gameLoop();
+        } else {
+            alert('Failed to connect to server. Please try again.');
         }
     }
 
@@ -53,18 +74,15 @@ class Game {
         const y = e.clientY - rect.top;
         
         this.currentPlayer.moveTo(x, y);
+        this.multiplayer.updatePlayerPosition(x, y);
     }
 
-    handleChat(message) {
-        if (!message.trim()) return;
-        
-        const chatMessages = document.getElementById('chat-messages');
-        const messageElement = document.createElement('div');
-        messageElement.textContent = `${this.currentPlayer.username}: ${message}`;
-        chatMessages.appendChild(messageElement);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        
-        document.getElementById('chat-input').value = '';
+    addPlayer(player) {
+        this.players.set(player.username, player);
+    }
+
+    removePlayer(player) {
+        this.players.delete(player.username);
     }
 
     gameLoop() {
@@ -73,13 +91,24 @@ class Game {
         // Draw room
         this.room.draw(this.ctx);
         
-        // Update and draw all players
+        // Update and draw current player
+        if (this.currentPlayer) {
+            this.currentPlayer.update();
+            this.currentPlayer.draw(this.ctx);
+        }
+        
+        // Update and draw other players
         for (let player of this.players.values()) {
             player.update();
             player.draw(this.ctx);
         }
         
         requestAnimationFrame(() => this.gameLoop());
+    }
+
+    changeRoom(roomId) {
+        this.room.changeRoom(roomId);
+        this.multiplayer.changeRoom(roomId);
     }
 }
 

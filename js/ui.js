@@ -10,6 +10,8 @@ class UI {
         this.setupEventListeners();
         this.currentRoom = 'lobby';
         this.customizationActive = false;
+        this.avatar = new Avatar();
+        this.setupAvatarPreview();
     }
 
     initializeElements() {
@@ -20,9 +22,20 @@ class UI {
         this.customizationPanel = document.getElementById('customization-panel');
         this.emoteButton = document.getElementById('emote-button');
         
-        // Color pickers
-        this.primaryColorPicker = document.getElementById('primary-color');
-        this.secondaryColorPicker = document.getElementById('secondary-color');
+        // Avatar customization
+        this.styleButtons = document.querySelectorAll('.style-btn');
+        this.colorInputs = {
+            body: document.getElementById('body-color'),
+            hair: document.getElementById('hair-color'),
+            eyes: document.getElementById('eye-color'),
+            outfitTop: document.getElementById('outfit-top-color'),
+            outfitBottom: document.getElementById('outfit-bottom-color')
+        };
+        
+        // Preview elements
+        this.avatarPreviewLogin = document.getElementById('avatar-preview-login');
+        this.avatarPreviewTop = document.getElementById('avatar-preview');
+        this.avatarPreviewCustomization = document.querySelector('.avatar-preview-large');
     }
 
     setupEventListeners() {
@@ -39,12 +52,90 @@ class UI {
         // Customization
         this.customizeBtn.addEventListener('click', () => this.toggleCustomization());
         
-        // Color pickers
-        this.primaryColorPicker.addEventListener('change', (e) => this.updateColors('primary', e.target.value));
-        this.secondaryColorPicker.addEventListener('change', (e) => this.updateColors('secondary', e.target.value));
+        // Style buttons
+        this.styleButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const part = btn.dataset.part;
+                const style = btn.dataset.style;
+                const subpart = btn.dataset.subpart;
+                
+                if (subpart) {
+                    this.avatar.setPartType(part, style, subpart);
+                } else {
+                    this.avatar.setPartType(part, style);
+                }
+                
+                this.updateAvatarPreviews();
+            });
+        });
+
+        // Color inputs
+        this.colorInputs.body.addEventListener('change', (e) => {
+            this.avatar.setPartColor('body', e.target.value);
+            this.updateAvatarPreviews();
+        });
+
+        this.colorInputs.hair.addEventListener('change', (e) => {
+            this.avatar.setPartColor('hair', e.target.value);
+            this.updateAvatarPreviews();
+        });
+
+        this.colorInputs.eyes.addEventListener('change', (e) => {
+            this.avatar.setPartColor('eyes', e.target.value);
+            this.updateAvatarPreviews();
+        });
+
+        this.colorInputs.outfitTop.addEventListener('change', (e) => {
+            this.avatar.setPartColor('outfit', e.target.value, 'top');
+            this.updateAvatarPreviews();
+        });
+
+        this.colorInputs.outfitBottom.addEventListener('change', (e) => {
+            this.avatar.setPartColor('outfit', e.target.value, 'bottom');
+            this.updateAvatarPreviews();
+        });
 
         // Emote button
         this.emoteButton.addEventListener('click', () => this.showEmotePanel());
+    }
+
+    setupAvatarPreview() {
+        // Setup login preview
+        const loginPreviewCtx = this.avatarPreviewLogin.getContext('2d');
+        this.avatarPreviewLogin.width = 200;
+        this.avatarPreviewLogin.height = 300;
+
+        // Setup top bar preview
+        const topPreviewCtx = this.avatarPreviewTop.getContext('2d');
+        this.avatarPreviewTop.width = 40;
+        this.avatarPreviewTop.height = 40;
+
+        // Setup customization preview
+        const customizationPreviewCtx = this.avatarPreviewCustomization.getContext('2d');
+        this.avatarPreviewCustomization.width = 300;
+        this.avatarPreviewCustomization.height = 400;
+
+        this.updateAvatarPreviews();
+    }
+
+    updateAvatarPreviews() {
+        // Update login preview
+        const loginCanvas = this.avatar.drawAvatar(50, 50, 1.5);
+        const loginPreviewCtx = this.avatarPreviewLogin.getContext('2d');
+        loginPreviewCtx.clearRect(0, 0, this.avatarPreviewLogin.width, this.avatarPreviewLogin.height);
+        loginPreviewCtx.drawImage(loginCanvas, 0, 0);
+
+        // Update top bar preview
+        const topCanvas = this.avatar.drawAvatar(0, 0, 0.3);
+        const topPreviewCtx = this.avatarPreviewTop.getContext('2d');
+        topPreviewCtx.clearRect(0, 0, this.avatarPreviewTop.width, this.avatarPreviewTop.height);
+        topPreviewCtx.drawImage(topCanvas, 0, 0);
+
+        // Update customization preview
+        const customizationCanvas = this.avatar.drawAvatar(75, 50, 2);
+        const customizationPreviewCtx = this.avatarPreviewCustomization.getContext('2d');
+        customizationPreviewCtx.clearRect(0, 0, this.avatarPreviewCustomization.width, this.avatarPreviewCustomization.height);
+        customizationPreviewCtx.drawImage(customizationCanvas, 0, 0);
     }
 
     changeRoom(roomName) {
@@ -62,28 +153,25 @@ class UI {
         this.chatTabs.forEach(tab => {
             tab.classList.toggle('active', tab.dataset.tab === tabName);
         });
-        // Update chat display based on selected tab
         this.updateChatDisplay(tabName);
     }
 
     updateChatDisplay(tabName) {
         const chatMessages = document.getElementById('chat-messages');
-        // Filter messages based on tab
-        // Implementation depends on how messages are stored
+        chatMessages.querySelectorAll('.chat-message').forEach(msg => {
+            if (tabName === 'all') {
+                msg.style.display = 'block';
+            } else {
+                msg.style.display = msg.classList.contains(tabName) ? 'block' : 'none';
+            }
+        });
     }
 
     toggleCustomization() {
         this.customizationActive = !this.customizationActive;
         this.customizationPanel.classList.toggle('active', this.customizationActive);
-    }
-
-    updateColors(type, color) {
-        if (window.game && window.game.currentPlayer) {
-            if (type === 'primary') {
-                window.game.currentPlayer.setPrimaryColor(color);
-            } else {
-                window.game.currentPlayer.setSecondaryColor(color);
-            }
+        if (this.customizationActive) {
+            this.updateAvatarPreviews();
         }
     }
 
@@ -102,6 +190,7 @@ class UI {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 5px;
+            z-index: 1000;
         `;
 
         emotes.forEach(emote => {
@@ -149,5 +238,14 @@ class UI {
     updateCredits(amount) {
         const creditsElement = document.getElementById('credits');
         creditsElement.textContent = `Credits: ${amount}`;
+    }
+
+    getAvatarConfig() {
+        return this.avatar.exportConfig();
+    }
+
+    setAvatarConfig(config) {
+        this.avatar.importConfig(config);
+        this.updateAvatarPreviews();
     }
 }
