@@ -1,11 +1,12 @@
 /*
- * [F3V3R DR34M] - 4V4T4R CUST0M1Z4T10N SYST3M
+ * [F3V3R DR34M] - 8B1T 4V4T4R SYST3M
  * CR4CK3D BY: Z4R1G4T4
- * WH3N 1N D0UBT, BL4M3 TH3 US3R!
+ * R3TR0 1S TH3 FUTUR3!
  */
 
 class Avatar {
     constructor() {
+        this.pixelSize = 4; // Size of each "pixel" in our 8-bit style
         this.parts = {
             body: {
                 type: 'default',
@@ -15,70 +16,309 @@ class Avatar {
             hair: {
                 type: 'style1',
                 color: '#4A3000',
-                variants: [
-                    'style1', 'style2', 'style3', 'style4',
-                    'punk', 'mohawk', 'emo', 'afro',
-                    'long', 'pigtails', 'bun', 'spiky'
-                ]
+                variants: ['style1', 'spiky', 'bowl', 'long']
             },
             eyes: {
                 type: 'normal',
-                color: '#4A3000',
-                variants: ['normal', 'angry', 'cute', 'sleepy', 'cool', 'wink']
+                color: '#000000',
+                variants: ['normal', 'happy', 'cool', 'angry']
             },
             mouth: {
                 type: 'smile',
-                variants: ['smile', 'grin', 'serious', 'surprised', 'cool']
+                color: '#FF9999',
+                variants: ['smile', 'neutral', 'o']
             },
             outfit: {
                 top: {
                     type: 'tshirt',
                     color: '#FF6B6B',
-                    variants: ['tshirt', 'hoodie', 'jacket', 'tank', 'suit', 'dress']
+                    variants: ['tshirt', 'jacket', 'tank']
                 },
                 bottom: {
-                    type: 'jeans',
+                    type: 'pants',
                     color: '#4ECDC4',
-                    variants: ['jeans', 'shorts', 'skirt', 'pants', 'tracksuit']
+                    variants: ['pants', 'shorts', 'skirt']
                 }
             },
             accessories: {
                 hat: {
                     type: 'none',
-                    variants: ['none', 'cap', 'beanie', 'crown', 'headphones']
-                },
-                glasses: {
-                    type: 'none',
-                    variants: ['none', 'regular', 'sunglasses', 'nerd', 'cyber']
+                    color: '#333333',
+                    variants: ['none', 'cap', 'beanie']
                 }
             }
         };
 
-        this.animations = {
-            current: 'idle',
-            list: ['idle', 'walk', 'dance', 'wave', 'sit']
+        this.direction = 0; // 0: front, 1: right, 2: back, 3: left
+        this.animation = {
+            enabled: false,
+            frame: 0,
+            totalFrames: 4,
+            frameDelay: 200,
+            lastUpdate: 0
         };
-
-        this.canvas = document.createElement('canvas');
-        this.ctx = this.canvas.getContext('2d');
-        this.sprites = {};
-        this.loadSprites();
     }
 
-    async loadSprites() {
-        const spriteList = {
-            'body': 'sprites/body/',
-            'hair': 'sprites/hair/',
-            'eyes': 'sprites/eyes/',
-            'mouth': 'sprites/mouth/',
-            'outfits': 'sprites/outfits/',
-            'accessories': 'sprites/accessories/'
-        };
+    drawPixel(ctx, x, y, color) {
+        ctx.fillStyle = color;
+        ctx.fillRect(
+            Math.floor(x) * this.pixelSize,
+            Math.floor(y) * this.pixelSize,
+            this.pixelSize,
+            this.pixelSize
+        );
+    }
 
-        for (let [key, path] of Object.entries(spriteList)) {
-            this.sprites[key] = {};
-            // In a real implementation, load actual sprite images here
-            // For now, we'll use canvas drawing
+    drawPixelArray(ctx, startX, startY, pixelArray, color) {
+        for (let y = 0; y < pixelArray.length; y++) {
+            for (let x = 0; x < pixelArray[y].length; x++) {
+                if (pixelArray[y][x]) {
+                    this.drawPixel(ctx, startX + x, startY + y, color);
+                }
+            }
+        }
+    }
+
+    drawAvatar(x, y, scale = 1) {
+        const baseWidth = 32; // Base width in pixels
+        const baseHeight = 48; // Base height in pixels
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = baseWidth * this.pixelSize * scale;
+        canvas.height = baseHeight * this.pixelSize * scale;
+        
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = false; // Keep pixels sharp
+        
+        // Scale everything
+        ctx.scale(scale, scale);
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw avatar parts in order
+        this.drawBody(ctx, baseWidth/2, baseHeight/2);
+        this.drawOutfit(ctx, baseWidth/2, baseHeight/2);
+        this.drawHead(ctx, baseWidth/2, baseHeight/4);
+        
+        return canvas;
+    }
+
+    drawBody(ctx, centerX, centerY) {
+        // Basic body shape - 8-bit style
+        const bodyPixels = [
+            [0,1,1,1,1,0],
+            [1,1,1,1,1,1],
+            [1,1,1,1,1,1],
+            [1,1,1,1,1,1],
+            [1,1,1,1,1,1],
+            [1,1,1,1,1,1],
+            [0,1,1,1,1,0]
+        ];
+
+        this.drawPixelArray(
+            ctx,
+            centerX - 3,
+            centerY - 3,
+            bodyPixels,
+            this.parts.body.color
+        );
+    }
+
+    drawHead(ctx, centerX, centerY) {
+        // Head base - 8-bit style
+        const headPixels = [
+            [0,1,1,1,1,0],
+            [1,1,1,1,1,1],
+            [1,1,1,1,1,1],
+            [1,1,1,1,1,1],
+            [1,1,1,1,1,1],
+            [0,1,1,1,1,0]
+        ];
+
+        this.drawPixelArray(
+            ctx,
+            centerX - 3,
+            centerY - 3,
+            headPixels,
+            this.parts.body.color
+        );
+
+        // Draw facial features based on direction
+        if (this.direction === 0 || this.direction === 2) { // Front or back
+            this.drawFace(ctx, centerX, centerY);
+        } else { // Side view
+            this.drawSideProfile(ctx, centerX, centerY);
+        }
+
+        // Draw hair
+        this.drawHair(ctx, centerX, centerY);
+    }
+
+    drawFace(ctx, centerX, centerY) {
+        switch(this.parts.eyes.type) {
+            case 'normal':
+                // Left eye
+                this.drawPixel(ctx, centerX - 2, centerY - 1, this.parts.eyes.color);
+                // Right eye
+                this.drawPixel(ctx, centerX + 1, centerY - 1, this.parts.eyes.color);
+                break;
+            case 'happy':
+                // Happy eyes
+                this.drawPixel(ctx, centerX - 2, centerY - 1, this.parts.eyes.color);
+                this.drawPixel(ctx, centerX - 1, centerY - 2, this.parts.eyes.color);
+                this.drawPixel(ctx, centerX + 1, centerY - 1, this.parts.eyes.color);
+                this.drawPixel(ctx, centerX + 2, centerY - 2, this.parts.eyes.color);
+                break;
+        }
+
+        // Draw mouth based on type
+        switch(this.parts.mouth.type) {
+            case 'smile':
+                this.drawPixel(ctx, centerX - 1, centerY + 1, this.parts.mouth.color);
+                this.drawPixel(ctx, centerX, centerY + 1, this.parts.mouth.color);
+                this.drawPixel(ctx, centerX + 1, centerY + 1, this.parts.mouth.color);
+                break;
+            case 'o':
+                this.drawPixel(ctx, centerX, centerY + 1, this.parts.mouth.color);
+                break;
+        }
+    }
+
+    drawSideProfile(ctx, centerX, centerY) {
+        // Side view eye
+        this.drawPixel(
+            ctx,
+            this.direction === 1 ? centerX + 1 : centerX - 1,
+            centerY - 1,
+            this.parts.eyes.color
+        );
+    }
+
+    drawHair(ctx, centerX, centerY) {
+        const hairColor = this.parts.hair.color;
+        
+        switch(this.parts.hair.type) {
+            case 'style1':
+                // Basic hair
+                const basicHair = [
+                    [1,1,1,1,1,1,1,1],
+                    [1,1,1,1,1,1,1,1],
+                    [1,0,1,1,1,1,0,1]
+                ];
+                this.drawPixelArray(ctx, centerX - 4, centerY - 4, basicHair, hairColor);
+                break;
+            
+            case 'spiky':
+                // Spiky hair
+                const spikyHair = [
+                    [1,0,1,0,1,0,1,0],
+                    [1,1,1,1,1,1,1,1],
+                    [1,1,0,1,1,0,1,1]
+                ];
+                this.drawPixelArray(ctx, centerX - 4, centerY - 4, spikyHair, hairColor);
+                break;
+            
+            case 'bowl':
+                // Bowl cut
+                const bowlHair = [
+                    [0,1,1,1,1,1,1,0],
+                    [1,1,1,1,1,1,1,1],
+                    [1,1,1,1,1,1,1,1]
+                ];
+                this.drawPixelArray(ctx, centerX - 4, centerY - 4, bowlHair, hairColor);
+                break;
+        }
+    }
+
+    drawOutfit(ctx, centerX, centerY) {
+        // Draw top
+        switch(this.parts.outfit.top.type) {
+            case 'tshirt':
+                const tshirt = [
+                    [1,1,1,1,1,1],
+                    [1,1,1,1,1,1],
+                    [1,1,1,1,1,1],
+                    [0,1,1,1,1,0]
+                ];
+                this.drawPixelArray(
+                    ctx,
+                    centerX - 3,
+                    centerY,
+                    tshirt,
+                    this.parts.outfit.top.color
+                );
+                break;
+            
+            case 'tank':
+                const tank = [
+                    [1,0,1,1,0,1],
+                    [1,0,1,1,0,1],
+                    [1,1,1,1,1,1],
+                    [0,1,1,1,1,0]
+                ];
+                this.drawPixelArray(
+                    ctx,
+                    centerX - 3,
+                    centerY,
+                    tank,
+                    this.parts.outfit.top.color
+                );
+                break;
+        }
+
+        // Draw bottom
+        switch(this.parts.outfit.bottom.type) {
+            case 'pants':
+                const pants = [
+                    [0,1,1,1,1,0],
+                    [0,1,1,1,1,0],
+                    [0,1,1,1,1,0],
+                    [0,1,0,0,1,0]
+                ];
+                this.drawPixelArray(
+                    ctx,
+                    centerX - 3,
+                    centerY + 4,
+                    pants,
+                    this.parts.outfit.bottom.color
+                );
+                break;
+            
+            case 'skirt':
+                const skirt = [
+                    [1,1,1,1,1,1],
+                    [0,1,1,1,1,0],
+                    [0,0,1,1,0,0]
+                ];
+                this.drawPixelArray(
+                    ctx,
+                    centerX - 3,
+                    centerY + 4,
+                    skirt,
+                    this.parts.outfit.bottom.color
+                );
+                break;
+        }
+    }
+
+    rotate(direction) {
+        this.direction = (this.direction + direction + 4) % 4;
+    }
+
+    setAnimation(enabled) {
+        this.animation.enabled = enabled;
+        this.animation.frame = 0;
+        this.animation.lastUpdate = Date.now();
+    }
+
+    updateAnimation() {
+        if (!this.animation.enabled) return;
+
+        const now = Date.now();
+        if (now - this.animation.lastUpdate > this.animation.frameDelay) {
+            this.animation.frame = (this.animation.frame + 1) % this.animation.totalFrames;
+            this.animation.lastUpdate = now;
         }
     }
 
@@ -105,356 +345,16 @@ class Avatar {
         }
     }
 
-    drawAvatar(x, y, scale = 1, animation = 'idle') {
-        this.canvas.width = 120 * scale;
-        this.canvas.height = 200 * scale;
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // Draw body
-        this.drawBody(x, y, scale);
-        
-        // Draw outfit
-        this.drawOutfit(x, y, scale);
-        
-        // Draw head features
-        this.drawHead(x, y, scale);
-        
-        // Draw accessories
-        this.drawAccessories(x, y, scale);
-
-        return this.canvas;
+    exportConfig() {
+        return JSON.stringify(this.parts);
     }
 
-    drawBody(x, y, scale) {
-        const ctx = this.ctx;
-        const bodyColor = this.parts.body.color;
-
-        // Body base
-        ctx.fillStyle = bodyColor;
-        ctx.beginPath();
-        ctx.ellipse(
-            x + 60 * scale, 
-            y + 100 * scale, 
-            30 * scale, 
-            50 * scale, 
-            0, 0, Math.PI * 2
-        );
-        ctx.fill();
-    }
-
-    drawHead(x, y, scale) {
-        const ctx = this.ctx;
-        const bodyColor = this.parts.body.color;
-        const hairColor = this.parts.hair.color;
-        
-        // Head
-        ctx.fillStyle = bodyColor;
-        ctx.beginPath();
-        ctx.arc(
-            x + 60 * scale,
-            y + 40 * scale,
-            25 * scale,
-            0,
-            Math.PI * 2
-        );
-        ctx.fill();
-
-        // Hair based on style
-        this.drawHairStyle(x, y, scale, hairColor);
-
-        // Eyes
-        this.drawEyes(x, y, scale);
-
-        // Mouth
-        this.drawMouth(x, y, scale);
-    }
-
-    drawHairStyle(x, y, scale, color) {
-        const ctx = this.ctx;
-        ctx.fillStyle = color;
-
-        switch(this.parts.hair.type) {
-            case 'style1': // Basic short hair
-                ctx.beginPath();
-                ctx.arc(
-                    x + 60 * scale,
-                    y + 35 * scale,
-                    27 * scale,
-                    Math.PI, 0
-                );
-                ctx.fill();
-                break;
-
-            case 'punk': // Punk style
-                ctx.beginPath();
-                for(let i = 0; i < 5; i++) {
-                    ctx.moveTo(x + (45 + i * 7) * scale, y + 40 * scale);
-                    ctx.lineTo(x + (48 + i * 7) * scale, y + 15 * scale);
-                    ctx.lineTo(x + (51 + i * 7) * scale, y + 40 * scale);
-                }
-                ctx.fill();
-                break;
-
-            case 'long': // Long hair
-                ctx.beginPath();
-                ctx.moveTo(x + 35 * scale, y + 40 * scale);
-                ctx.quadraticCurveTo(
-                    x + 60 * scale, y + 120 * scale,
-                    x + 85 * scale, y + 40 * scale
-                );
-                ctx.fill();
-                break;
-
-            // Add more hair styles here
-        }
-    }
-
-    drawEyes(x, y, scale) {
-        const ctx = this.ctx;
-        const eyeStyle = this.parts.eyes.type;
-        const eyeColor = this.parts.eyes.color;
-
-        switch(eyeStyle) {
-            case 'normal':
-                // Left eye
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.ellipse(
-                    x + 50 * scale,
-                    y + 35 * scale,
-                    5 * scale,
-                    7 * scale,
-                    0, 0, Math.PI * 2
-                );
-                ctx.fill();
-
-                // Right eye
-                ctx.beginPath();
-                ctx.ellipse(
-                    x + 70 * scale,
-                    y + 35 * scale,
-                    5 * scale,
-                    7 * scale,
-                    0, 0, Math.PI * 2
-                );
-                ctx.fill();
-
-                // Pupils
-                ctx.fillStyle = eyeColor;
-                ctx.beginPath();
-                ctx.arc(x + 50 * scale, y + 35 * scale, 2 * scale, 0, Math.PI * 2);
-                ctx.arc(x + 70 * scale, y + 35 * scale, 2 * scale, 0, Math.PI * 2);
-                ctx.fill();
-                break;
-
-            case 'cute':
-                ctx.fillStyle = eyeColor;
-                ctx.beginPath();
-                ctx.arc(x + 50 * scale, y + 35 * scale, 4 * scale, 0, Math.PI * 2);
-                ctx.arc(x + 70 * scale, y + 35 * scale, 4 * scale, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Shine
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.arc(x + 48 * scale, y + 33 * scale, 1.5 * scale, 0, Math.PI * 2);
-                ctx.arc(x + 68 * scale, y + 33 * scale, 1.5 * scale, 0, Math.PI * 2);
-                ctx.fill();
-                break;
-
-            // Add more eye styles
-        }
-    }
-
-    drawMouth(x, y, scale) {
-        const ctx = this.ctx;
-        const mouthStyle = this.parts.mouth.type;
-
-        ctx.strokeStyle = '#FF9999';
-        ctx.lineWidth = 2 * scale;
-
-        switch(mouthStyle) {
-            case 'smile':
-                ctx.beginPath();
-                ctx.arc(
-                    x + 60 * scale,
-                    y + 45 * scale,
-                    10 * scale,
-                    0.1 * Math.PI,
-                    0.9 * Math.PI
-                );
-                ctx.stroke();
-                break;
-
-            case 'grin':
-                ctx.beginPath();
-                ctx.arc(
-                    x + 60 * scale,
-                    y + 45 * scale,
-                    12 * scale,
-                    0,
-                    Math.PI
-                );
-                ctx.stroke();
-                // Add teeth
-                ctx.fillStyle = 'white';
-                ctx.fillRect(x + 53 * scale, y + 45 * scale, 14 * scale, 3 * scale);
-                break;
-
-            // Add more mouth styles
-        }
-    }
-
-    drawOutfit(x, y, scale) {
-        const ctx = this.ctx;
-        const topStyle = this.parts.outfit.top;
-        const bottomStyle = this.parts.outfit.bottom;
-
-        // Draw top
-        ctx.fillStyle = topStyle.color;
-        switch(topStyle.type) {
-            case 'tshirt':
-                ctx.beginPath();
-                ctx.moveTo(x + 30 * scale, y + 70 * scale);
-                ctx.lineTo(x + 90 * scale, y + 70 * scale);
-                ctx.lineTo(x + 85 * scale, y + 120 * scale);
-                ctx.lineTo(x + 35 * scale, y + 120 * scale);
-                ctx.closePath();
-                ctx.fill();
-                break;
-
-            case 'hoodie':
-                ctx.beginPath();
-                ctx.moveTo(x + 25 * scale, y + 65 * scale);
-                ctx.lineTo(x + 95 * scale, y + 65 * scale);
-                ctx.lineTo(x + 90 * scale, y + 125 * scale);
-                ctx.lineTo(x + 30 * scale, y + 125 * scale);
-                ctx.closePath();
-                ctx.fill();
-                // Hood
-                ctx.beginPath();
-                ctx.arc(x + 60 * scale, y + 65 * scale, 25 * scale, Math.PI, 0);
-                ctx.fill();
-                break;
-
-            // Add more top styles
-        }
-
-        // Draw bottom
-        ctx.fillStyle = bottomStyle.color;
-        switch(bottomStyle.type) {
-            case 'jeans':
-                ctx.fillRect(
-                    x + 35 * scale,
-                    y + 120 * scale,
-                    20 * scale,
-                    60 * scale
-                );
-                ctx.fillRect(
-                    x + 65 * scale,
-                    y + 120 * scale,
-                    20 * scale,
-                    60 * scale
-                );
-                break;
-
-            case 'skirt':
-                ctx.beginPath();
-                ctx.moveTo(x + 35 * scale, y + 120 * scale);
-                ctx.lineTo(x + 85 * scale, y + 120 * scale);
-                ctx.lineTo(x + 95 * scale, y + 150 * scale);
-                ctx.lineTo(x + 25 * scale, y + 150 * scale);
-                ctx.closePath();
-                ctx.fill();
-                break;
-
-            // Add more bottom styles
-        }
-    }
-
-    drawAccessories(x, y, scale) {
-        const ctx = this.ctx;
-        const hatStyle = this.parts.accessories.hat;
-        const glassesStyle = this.parts.accessories.glasses;
-
-        // Draw hat if selected
-        if (hatStyle.type !== 'none') {
-            switch(hatStyle.type) {
-                case 'cap':
-                    ctx.fillStyle = '#333';
-                    ctx.beginPath();
-                    ctx.arc(x + 60 * scale, y + 25 * scale, 25 * scale, Math.PI, 0);
-                    ctx.fill();
-                    // Cap bill
-                    ctx.fillRect(
-                        x + 35 * scale,
-                        y + 25 * scale,
-                        50 * scale,
-                        5 * scale
-                    );
-                    break;
-
-                // Add more hat styles
-            }
-        }
-
-        // Draw glasses if selected
-        if (glassesStyle.type !== 'none') {
-            switch(glassesStyle.type) {
-                case 'regular':
-                    ctx.strokeStyle = '#333';
-                    ctx.lineWidth = 2 * scale;
-                    // Left lens
-                    ctx.beginPath();
-                    ctx.arc(x + 50 * scale, y + 35 * scale, 8 * scale, 0, Math.PI * 2);
-                    ctx.stroke();
-                    // Right lens
-                    ctx.beginPath();
-                    ctx.arc(x + 70 * scale, y + 35 * scale, 8 * scale, 0, Math.PI * 2);
-                    ctx.stroke();
-                    // Bridge
-                    ctx.beginPath();
-                    ctx.moveTo(x + 58 * scale, y + 35 * scale);
-                    ctx.lineTo(x + 62 * scale, y + 35 * scale);
-                    ctx.stroke();
-                    break;
-
-                // Add more glasses styles
-            }
-        }
-    }
-
-    // Animation methods
-    setAnimation(animationName) {
-        if (this.animations.list.includes(animationName)) {
-            this.animations.current = animationName;
-            return true;
-        }
-        return false;
-    }
-
-    // Export avatar as data URL
-    exportAvatar() {
-        return this.canvas.toDataURL();
-    }
-
-    // Import avatar configuration
     importConfig(config) {
         try {
-            for (let [category, value] of Object.entries(config)) {
-                if (typeof value === 'object') {
-                    for (let [subCategory, subValue] of Object.entries(value)) {
-                        if (subValue.type) {
-                            this.setPartType(category, subValue.type, subCategory);
-                        }
-                        if (subValue.color) {
-                            this.setPartColor(category, subValue.color, subCategory);
-                        }
-                    }
-                } else {
-                    if (this.parts[category]) {
-                        this.parts[category] = value;
-                    }
+            const parsedConfig = typeof config === 'string' ? JSON.parse(config) : config;
+            for (let [category, value] of Object.entries(parsedConfig)) {
+                if (this.parts[category]) {
+                    this.parts[category] = value;
                 }
             }
             return true;
@@ -462,10 +362,5 @@ class Avatar {
             console.error('Error importing avatar configuration:', error);
             return false;
         }
-    }
-
-    // Export avatar configuration
-    exportConfig() {
-        return JSON.stringify(this.parts);
     }
 }
