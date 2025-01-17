@@ -5,25 +5,86 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>H4BB0 DR34M W0RLD</title>
     <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="game-container">
-        <canvas id="gameCanvas"></canvas>
-        <div id="chat-container">
-            <div id="chat-messages"></div>
-            <input type="text" id="chat-input" placeholder="Type to chat...">
+        <div id="ui-overlay">
+            <div id="top-bar">
+                <div id="user-info">
+                    <div id="avatar-preview"></div>
+                    <span id="credits">Credits: 0</span>
+                </div>
+                <div id="navigation">
+                    <button class="nav-btn" data-room="lobby">Lobby</button>
+                    <button class="nav-btn" data-room="cafe">Café</button>
+                    <button class="nav-btn" data-room="pool">Pool</button>
+                    <button class="nav-btn" data-room="disco">Disco</button>
+                </div>
+            </div>
         </div>
+        
+        <canvas id="gameCanvas"></canvas>
+        
+        <div id="chat-container">
+            <div id="chat-tabs">
+                <button class="chat-tab active" data-tab="all">All</button>
+                <button class="chat-tab" data-tab="room">Room</button>
+                <button class="chat-tab" data-tab="private">Private</button>
+            </div>
+            <div id="chat-messages"></div>
+            <div id="chat-controls">
+                <input type="text" id="chat-input" placeholder="Type to chat...">
+                <div id="emote-button">😊</div>
+            </div>
+        </div>
+
+        <div id="customization-panel" class="side-panel">
+            <h3>Customize Your Avatar</h3>
+            <div class="customization-section">
+                <h4>Hair Style</h4>
+                <div class="style-options">
+                    <button class="style-btn" data-style="hair1">Style 1</button>
+                    <button class="style-btn" data-style="hair2">Style 2</button>
+                    <button class="style-btn" data-style="hair3">Style 3</button>
+                </div>
+            </div>
+            <div class="customization-section">
+                <h4>Outfit</h4>
+                <div class="style-options">
+                    <button class="style-btn" data-style="outfit1">Casual</button>
+                    <button class="style-btn" data-style="outfit2">Formal</button>
+                    <button class="style-btn" data-style="outfit3">Sport</button>
+                </div>
+            </div>
+            <div class="color-picker">
+                <h4>Colors</h4>
+                <input type="color" id="primary-color" value="#FF6B6B">
+                <input type="color" id="secondary-color" value="#4ECDC4">
+            </div>
+        </div>
+
         <div id="login-screen" class="overlay">
             <div class="login-box">
-                <h2>Welcome to H4BB0 DR34M</h2>
+                <div class="logo-container">
+                    <h1>H4BB0 DR34M</h1>
+                    <div class="logo-animation"></div>
+                </div>
+                <div class="character-preview"></div>
                 <input type="text" id="username" placeholder="Choose your username">
+                <button id="customize-btn">Customize Avatar</button>
                 <button id="start-btn">Enter Hotel</button>
+                <div class="credits">
+                    <p>CR4CK3D BY: Z4R1G4T4</p>
+                    <p>F3V3R DR34M T34M</p>
+                </div>
             </div>
         </div>
     </div>
     <script src="js/config.js"></script>
     <script src="js/character.js"></script>
     <script src="js/room.js"></script>
+    <script src="js/ui.js"></script>
     <script src="js/game.js"></script>
 </body>
 </html>
